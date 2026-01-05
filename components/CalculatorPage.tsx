@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { Download, Send, Award, MapPin, Users, X, Trash2, Eye, ChevronRight, CheckCircle2, Mail } from 'lucide-react';
+import { Download, Send, Award, MapPin, Users, X, Trash2, Eye, ChevronRight, CheckCircle2, Mail, LogOut, RefreshCcw } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import { CALCULATORS } from '../constants';
@@ -10,13 +11,16 @@ interface CalculatorPageProps {
   user: UserRegistration;
   addToQuote: (item: QuoteItem) => void;
   removeFromQuote: (calculatorId: string) => void;
+  clearCart: () => void;
   logQuoteInDatabase: () => void;
   quoteItems: QuoteItem[];
 }
 
-const CalculatorPage: React.FC<CalculatorPageProps> = ({ user, addToQuote, removeFromQuote, logQuoteInDatabase, quoteItems }) => {
+const CalculatorPage: React.FC<CalculatorPageProps> = ({ user, addToQuote, removeFromQuote, clearCart, logQuoteInDatabase, quoteItems }) => {
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [isFinalized, setIsFinalized] = useState(false);
+  const navigate = useNavigate();
   
   const categories = ['All', ...Array.from(new Set(CALCULATORS.map(c => c.category)))];
 
@@ -54,27 +58,30 @@ const CalculatorPage: React.FC<CalculatorPageProps> = ({ user, addToQuote, remov
     return msg;
   };
 
-  const handleSendQuoteWhatsApp = () => {
+  const finalizeProcess = () => {
     logQuoteInDatabase();
+    setIsFinalized(true);
+    // Note: We don't clearCart() here yet, so they can see the confirmation in the modal.
+    // We clear it when they click the logout or new quote buttons.
+  };
+
+  const handleSendQuoteWhatsApp = () => {
     const msg = generateDetailedMessage('WHATSAPP');
     const whatsappUrl = `https://wa.me/27780783112?text=${encodeURIComponent(msg)}`;
     window.open(whatsappUrl, '_blank');
-    setShowReviewModal(false);
+    finalizeProcess();
   };
 
   const handleSendQuoteEmail = () => {
-    logQuoteInDatabase();
     const subject = `OFFICIAL QUOTE REQUEST: ${user.eventName} - ${user.fullName}`;
     const body = generateDetailedMessage('EMAIL');
 
     const mailtoUrl = `mailto:jivandinesh@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.location.href = mailtoUrl;
-    setShowReviewModal(false);
+    finalizeProcess();
   };
 
   const handleDownloadPDF = () => {
-    logQuoteInDatabase();
-
     const doc = new jsPDF() as any;
     const pageWidth = doc.internal.pageSize.getWidth();
     const today = new Date().toLocaleString();
@@ -184,6 +191,20 @@ const CalculatorPage: React.FC<CalculatorPageProps> = ({ user, addToQuote, remov
     doc.text('This quote is proprietary and confidential under signed NDA. Logged in Admin Hub.', 15, Math.min(finalY, 285));
 
     doc.save(`Quote_${user.eventName.replace(/\s+/g, '_')}.pdf`);
+    finalizeProcess();
+    setShowReviewModal(true); 
+  };
+
+  const handleLogoutAndHome = () => {
+    localStorage.removeItem('race_director_user');
+    localStorage.removeItem('race_quote_cart');
+    window.location.href = '/'; 
+  };
+
+  const handleStartNewQuote = () => {
+    clearCart();
+    setIsFinalized(false);
+    setShowReviewModal(false);
   };
 
   return (
@@ -257,7 +278,7 @@ const CalculatorPage: React.FC<CalculatorPageProps> = ({ user, addToQuote, remov
             
             <div className="flex gap-3 w-full md:w-auto">
               <button 
-                onClick={() => setShowReviewModal(true)}
+                onClick={() => { setShowReviewModal(true); setIsFinalized(false); }}
                 className="flex-1 md:flex-none flex items-center justify-center space-x-2 px-8 py-4 bg-neutral-100 dark:bg-slate-800 text-neutral-900 dark:text-white font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-neutral-200 dark:hover:bg-slate-700 transition"
               >
                 <Eye size={16} />
@@ -283,8 +304,12 @@ const CalculatorPage: React.FC<CalculatorPageProps> = ({ user, addToQuote, remov
             <div className="p-10 border-b dark:border-slate-800 bg-neutral-50 dark:bg-slate-800/50 flex justify-between items-center relative">
                <div className="absolute top-0 right-0 w-32 h-32 bg-[#40e0d0]/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
                <div className="relative z-10">
-                 <h3 className="text-2xl font-black italic dark:text-white uppercase tracking-tighter">Quote Review</h3>
-                 <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mt-1">Verified Inventory Summary</p>
+                 <h3 className="text-2xl font-black italic dark:text-white uppercase tracking-tighter">
+                   {isFinalized ? 'Action Complete' : 'Quote Review'}
+                 </h3>
+                 <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mt-1">
+                   {isFinalized ? 'Your request has been processed successfully' : 'Verified Inventory Summary'}
+                 </p>
                </div>
                <button onClick={() => setShowReviewModal(false)} className="relative z-10 p-3 bg-white dark:bg-slate-800 shadow-sm rounded-2xl hover:bg-neutral-100 dark:hover:bg-slate-700 transition">
                  <X size={20} className="dark:text-white" />
@@ -292,49 +317,84 @@ const CalculatorPage: React.FC<CalculatorPageProps> = ({ user, addToQuote, remov
             </div>
 
             <div className="p-10 overflow-y-auto custom-scrollbar flex-grow">
-               <div className="space-y-4">
-                  {quoteItems.map((item) => (
-                    <div key={item.calculatorId} className="p-6 bg-neutral-50 dark:bg-white/5 rounded-[2rem] border dark:border-slate-800 flex justify-between items-center group hover:border-orange-500/50 transition-colors">
-                      <div className="max-w-[70%]">
-                         <div className="flex items-center space-x-2">
-                           <span className="px-2 py-0.5 bg-orange-100 dark:bg-orange-950/40 text-orange-600 rounded text-[8px] font-black uppercase">Verified</span>
-                           <p className="font-black text-xs uppercase dark:text-white">{item.name}</p>
-                         </div>
-                         <p className="text-[10px] text-neutral-500 font-bold leading-tight mt-2 italic line-clamp-2">{item.details}</p>
-                      </div>
-                      <div className="flex flex-col items-end">
-                        <p className="text-xl font-black text-neutral-900 dark:text-white leading-none">{item.quantity.toLocaleString()}</p>
-                        <button 
-                          onClick={() => removeFromQuote(item.calculatorId)}
-                          className="mt-2 text-[9px] font-black text-red-500 uppercase tracking-widest hover:text-red-600 flex items-center"
-                        >
-                          <Trash2 size={10} className="mr-1" /> Remove
-                        </button>
-                      </div>
+               {isFinalized ? (
+                 <div className="flex flex-col items-center justify-center py-12 text-center space-y-6 animate-in fade-in zoom-in">
+                    <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center text-white shadow-xl shadow-green-500/20">
+                      <CheckCircle2 size={48} />
                     </div>
-                  ))}
-               </div>
+                    <div className="space-y-2">
+                      <h4 className="text-2xl font-black dark:text-white italic uppercase">Success!</h4>
+                      <p className="text-neutral-500 dark:text-slate-400 text-sm font-medium leading-relaxed max-w-sm">
+                        Quote details sent to Admin. You can now securely logout or return to the calculator.
+                      </p>
+                    </div>
+                 </div>
+               ) : (
+                 <div className="space-y-4">
+                    {quoteItems.map((item) => (
+                      <div key={item.calculatorId} className="p-6 bg-neutral-50 dark:bg-white/5 rounded-[2rem] border dark:border-slate-800 flex justify-between items-center group hover:border-orange-500/50 transition-colors">
+                        <div className="max-w-[70%]">
+                           <div className="flex items-center space-x-2">
+                             <span className="px-2 py-0.5 bg-orange-100 dark:bg-orange-950/40 text-orange-600 rounded text-[8px] font-black uppercase">Verified</span>
+                             <p className="font-black text-xs uppercase dark:text-white">{item.name}</p>
+                           </div>
+                           <p className="text-[10px] text-neutral-500 font-bold leading-tight mt-2 italic line-clamp-2">{item.details}</p>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <p className="text-xl font-black text-neutral-900 dark:text-white leading-none">{item.quantity.toLocaleString()}</p>
+                          {!isFinalized && (
+                            <button 
+                              onClick={() => removeFromQuote(item.calculatorId)}
+                              className="mt-2 text-[9px] font-black text-red-500 uppercase tracking-widest hover:text-red-600 flex items-center"
+                            >
+                              <Trash2 size={10} className="mr-1" /> Remove
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                 </div>
+               )}
             </div>
 
             <div className="p-10 border-t dark:border-slate-800 bg-white dark:bg-slate-900">
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <button 
-                    onClick={handleSendQuoteWhatsApp}
-                    className="flex items-center justify-center space-x-3 py-5 bg-[#25D366] text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:brightness-110 transition shadow-lg shadow-[#25D366]/20"
-                  >
-                    <Send size={18} />
-                    <span>WhatsApp Quote</span>
-                  </button>
-                  <button 
-                    onClick={handleSendQuoteEmail}
-                    className="flex items-center justify-center space-x-3 py-5 bg-neutral-900 dark:bg-slate-700 text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:bg-black transition shadow-lg"
-                  >
-                    <Mail size={18} />
-                    <span>Email Quote</span>
-                  </button>
-               </div>
+               {isFinalized ? (
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button 
+                      onClick={handleLogoutAndHome}
+                      className="flex items-center justify-center space-x-3 py-5 bg-red-600 text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:bg-red-700 transition shadow-lg shadow-red-600/20"
+                    >
+                      <LogOut size={18} />
+                      <span>Logout & Exit</span>
+                    </button>
+                    <button 
+                      onClick={handleStartNewQuote}
+                      className="flex items-center justify-center space-x-3 py-5 bg-neutral-900 dark:bg-slate-700 text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:bg-black transition shadow-lg"
+                    >
+                      <RefreshCcw size={18} />
+                      <span>Start New Quote</span>
+                    </button>
+                 </div>
+               ) : (
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button 
+                      onClick={handleSendQuoteWhatsApp}
+                      className="flex items-center justify-center space-x-3 py-5 bg-[#25D366] text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:brightness-110 transition shadow-lg shadow-[#25D366]/20"
+                    >
+                      <Send size={18} />
+                      <span>WhatsApp Quote</span>
+                    </button>
+                    <button 
+                      onClick={handleSendQuoteEmail}
+                      className="flex items-center justify-center space-x-3 py-5 bg-neutral-900 dark:bg-slate-700 text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:bg-black transition shadow-lg"
+                    >
+                      <Mail size={18} />
+                      <span>Email Quote</span>
+                    </button>
+                 </div>
+               )}
                <p className="text-[9px] text-neutral-400 font-bold text-center mt-6 uppercase tracking-widest">
-                 All logs are verified and stored in the Admin Hub
+                 {isFinalized ? 'Session data is protected by secure passkey encryption' : 'All logs are verified and stored in the Admin Hub'}
                </p>
             </div>
           </div>

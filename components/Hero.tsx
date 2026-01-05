@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Target, ShieldCheck, BarChart3, Clock, ChevronRight } from 'lucide-react';
+import { Target, ShieldCheck, BarChart3, Clock } from 'lucide-react';
 import { RunningManAnimation } from './Header';
 
 interface HeroProps {
@@ -27,20 +27,22 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
           <p className="mt-6 text-lg text-gray-500 dark:text-slate-400 sm:text-xl md:text-2xl max-w-2xl mx-auto font-medium leading-relaxed">
             The ultimate planning suite for Race Directors. Calculate event costs, source quality supplies, and manage logistics for thousands of runners with precision.
           </p>
-          <div className="mt-12 flex flex-col sm:flex-row justify-center gap-6">
-            <Link
-              to="/calculator"
-              onClick={onStart}
-              className="px-12 py-5 border border-transparent text-lg font-black rounded-2xl text-white bg-orange-600 hover:bg-orange-700 shadow-xl shadow-orange-200 dark:shadow-none transition transform hover:-translate-y-1 active:scale-95 uppercase tracking-widest"
-            >
-              The Calculator
-            </Link>
-            <Link
-              to="/about"
-              className="px-12 py-5 border border-transparent text-lg font-black rounded-2xl text-orange-700 dark:text-orange-400 bg-orange-100 dark:bg-slate-800 hover:bg-orange-200 dark:hover:bg-slate-700 transition transform hover:-translate-y-1 active:scale-95 uppercase tracking-widest"
-            >
-              View Products
-            </Link>
+          <div className="mt-12 flex flex-col items-center space-y-10">
+            <div className="flex flex-col sm:flex-row justify-center gap-6 w-full">
+              <Link
+                to="/calculator"
+                onClick={onStart}
+                className="px-12 py-5 border border-transparent text-lg font-black rounded-2xl text-white bg-orange-600 hover:bg-orange-700 shadow-xl shadow-orange-200 dark:shadow-none transition transform hover:-translate-y-1 active:scale-95 uppercase tracking-widest"
+              >
+                The Calculator
+              </Link>
+              <Link
+                to="/about"
+                className="px-12 py-5 border border-transparent text-lg font-black rounded-2xl text-orange-700 dark:text-orange-400 bg-orange-100 dark:bg-slate-800 hover:bg-orange-200 dark:hover:bg-slate-700 transition transform hover:-translate-y-1 active:scale-95 uppercase tracking-widest"
+              >
+                View Products
+              </Link>
+            </div>
           </div>
         </main>
       </div>

@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Instagram, Facebook, Twitter, Mail, Database } from 'lucide-react';
+import { Instagram, Facebook, Twitter, Mail, Database, Smartphone } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
@@ -52,9 +51,15 @@ const Footer: React.FC = () => {
                 <Twitter size={18} />
               </a>
             </div>
-            <div className="flex items-center space-x-2 text-neutral-400 text-sm">
-              <Mail size={16} />
-              <span>jivandinesh@gmail.com</span>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2 text-neutral-400 text-sm">
+                <Mail size={16} />
+                <span>jivandinesh@gmail.com</span>
+              </div>
+              <div className="flex items-center space-x-2 text-neutral-400 text-sm">
+                <Smartphone size={16} className="text-orange-500" />
+                <span>+27 78 078 3112</span>
+              </div>
             </div>
           </div>
         </div>

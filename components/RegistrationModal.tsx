@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { X, ShieldCheck, Mail, Phone, Calendar, User, Briefcase, Info, Fingerprint, ArrowRight, CheckCircle2, MapPin, Users } from 'lucide-react';
 import { UserRegistration } from '../types';
@@ -82,12 +81,12 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ onClose, onSubmit
       
       <div className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300 border dark:border-slate-800">
         
-        {/* Header Branding */}
-        <div className="bg-neutral-950 p-10 text-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-orange-600/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+        {/* Header Branding - Updated to light background for black text */}
+        <div className="bg-gray-50 dark:bg-slate-800 p-10 relative overflow-hidden border-b dark:border-slate-700">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-orange-600/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
           <button 
             onClick={onClose}
-            className="absolute top-8 right-8 text-neutral-500 hover:text-white transition-colors z-10"
+            className="absolute top-8 right-8 text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors z-10"
           >
             <X size={24} />
           </button>
@@ -97,9 +96,9 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ onClose, onSubmit
               <div className="w-12 h-12 bg-orange-600 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-600/20">
                 <Fingerprint className="text-white" size={28} />
               </div>
-              <h2 className="text-3xl font-black tracking-tight italic">DIRECTOR ACCESS</h2>
+              <h2 className="text-3xl font-black tracking-tight italic text-black underline underline-offset-4 decoration-orange-600/30">DIRECTOR ACCESS</h2>
             </div>
-            <p className="text-neutral-400 font-medium max-w-md">
+            <p className="text-gray-500 dark:text-slate-400 font-medium max-w-md">
               Secure, passwordless authentication for verified South African Race Directors.
             </p>
           </div>

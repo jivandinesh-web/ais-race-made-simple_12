@@ -105,6 +105,12 @@ const App: React.FC = () => {
     addToast("Item removed from cart");
   }, []);
 
+  const clearCart = useCallback(() => {
+    setQuoteItems([]);
+    localStorage.removeItem('race_quote_cart');
+    addToast("Inventory Cleared");
+  }, []);
+
   const logQuoteInDatabase = useCallback(() => {
     if (!user || quoteItems.length === 0) return;
     
@@ -162,6 +168,7 @@ const App: React.FC = () => {
                   <CalculatorPage 
                     addToQuote={addToQuote} 
                     removeFromQuote={removeFromQuote}
+                    clearCart={clearCart}
                     logQuoteInDatabase={logQuoteInDatabase}
                     quoteItems={quoteItems} 
                     user={user}

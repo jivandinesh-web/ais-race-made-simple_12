@@ -21,6 +21,7 @@ export const RunningManAnimation = ({ className = "fill-white", size = "48px" }:
 
 const Header: React.FC<HeaderProps> = ({ user, quoteCount, darkMode, toggleDarkMode, onOpenAuth }) => {
   const location = useLocation();
+  const isLandingPage = location.pathname === '/';
   
   return (
     <header className="sticky top-0 z-50 shadow-md gradient-charcoal-orange transition-colors" style={{ height: '20mm' }}>
@@ -38,8 +39,8 @@ const Header: React.FC<HeaderProps> = ({ user, quoteCount, darkMode, toggleDarkM
                 fontSize: '18mm', 
                 lineHeight: '1',
                 height: '18mm',
-                width: 'auto', // Refreshed to auto to fit naturally between icons
-                minWidth: '50mm', // Respects the original length requirement as a minimum
+                width: 'auto', 
+                minWidth: '50mm', 
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -68,13 +69,16 @@ const Header: React.FC<HeaderProps> = ({ user, quoteCount, darkMode, toggleDarkM
         </nav>
 
         <div className="flex items-center space-x-3">
-          <button 
-            onClick={toggleDarkMode}
-            className="p-1.5 text-white hover:bg-black/10 rounded-full transition"
-            title="Toggle Theme"
-          >
-            {darkMode ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
+          {/* Conditionally hide the dark mode toggle on the landing page */}
+          {!isLandingPage && (
+            <button 
+              onClick={toggleDarkMode}
+              className="p-1.5 text-white hover:bg-black/10 rounded-full transition"
+              title="Toggle Theme"
+            >
+              {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+          )}
 
           <Link to="/calculator" className="relative p-1.5 text-white hover:text-black transition" title="Cart">
             <ShoppingCart className="w-5 h-5" />
@@ -95,9 +99,9 @@ const Header: React.FC<HeaderProps> = ({ user, quoteCount, darkMode, toggleDarkM
           ) : (
             <button 
               onClick={onOpenAuth}
-              className="flex items-center space-x-2 px-3 py-1.5 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-gray-100 transition shadow-sm h-8"
+              className="flex items-center space-x-2 px-4 py-1.5 bg-orange-100 dark:bg-slate-800 text-orange-700 dark:text-orange-400 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-orange-200 dark:hover:bg-slate-700 transition transform hover:-translate-y-0.5 active:scale-95 shadow-sm h-9"
             >
-              <Fingerprint size={14} />
+              <Fingerprint size={16} className="text-orange-700 dark:text-orange-400" />
               <span>Sign In</span>
             </button>
           )}
