@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Target, ShieldCheck, BarChart3 } from 'lucide-react';
+import { Target, ShieldCheck, BarChart3, Clock, ChevronRight } from 'lucide-react';
 import { RunningManAnimation } from './Header';
 
 interface HeroProps {
@@ -46,28 +46,38 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
       </div>
 
       <div className="bg-gray-50 dark:bg-slate-800/50 py-16 px-4 sm:px-6 lg:px-8 border-t dark:border-slate-800 transition-colors">
-        <div className="max-w-7xl auto">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            <div className="flex flex-col items-center p-8 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-neutral-100 dark:border-slate-700">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+            <div className="flex flex-col items-center p-8 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-neutral-100 dark:border-slate-700 hover:border-orange-500/30 transition-colors">
               <div className="bg-orange-100 dark:bg-orange-900/30 p-4 rounded-2xl mb-6 text-orange-600 dark:text-orange-400">
                 <Target size={40} />
               </div>
               <h3 className="text-2xl font-black mb-3 dark:text-white uppercase italic">Precision Planning</h3>
               <p className="text-gray-500 dark:text-slate-400 text-center text-base font-medium">Automated formulas for water, shirts, and logistics up to 100k runners.</p>
             </div>
-            <div className="flex flex-col items-center p-8 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-neutral-100 dark:border-slate-700">
+            
+            <div className="flex flex-col items-center p-8 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-neutral-100 dark:border-slate-700 hover:border-blue-500/30 transition-colors">
               <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-2xl mb-6 text-blue-600 dark:text-blue-400">
                 <ShieldCheck size={40} />
               </div>
               <h3 className="text-2xl font-black mb-3 dark:text-white uppercase italic">Director Approved</h3>
               <p className="text-gray-500 dark:text-slate-400 text-center text-base font-medium">Verified by veteran race managers for running safety.</p>
             </div>
-            <div className="flex flex-col items-center p-8 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-neutral-100 dark:border-slate-700">
+            
+            <div className="flex flex-col items-center p-8 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-neutral-100 dark:border-slate-700 hover:border-green-500/30 transition-colors">
               <div className="bg-green-100 dark:bg-green-900/30 p-4 rounded-2xl mb-6 text-green-600 dark:text-green-400">
                 <BarChart3 size={40} />
               </div>
               <h3 className="text-2xl font-black mb-3 dark:text-white uppercase italic">Live Quotes</h3>
               <p className="text-gray-500 dark:text-slate-400 text-center text-base font-medium">Instantly add items to your quote cart and export professional PDFs.</p>
+            </div>
+
+            <div className="flex flex-col items-center p-8 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-neutral-100 dark:border-slate-700 hover:border-purple-500/30 transition-colors">
+              <div className="bg-purple-100 dark:bg-purple-900/30 p-4 rounded-2xl mb-6 text-purple-600 dark:text-purple-400">
+                <Clock size={40} />
+              </div>
+              <h3 className="text-2xl font-black mb-3 dark:text-white uppercase italic">SAVE</h3>
+              <p className="text-gray-500 dark:text-slate-400 text-center text-base font-medium">Saving Directors time, money, supplier verification and communication.</p>
             </div>
           </div>
         </div>

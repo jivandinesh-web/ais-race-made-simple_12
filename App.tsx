@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { Fingerprint, Lock, CheckCircle2, Database, ShieldAlert, Download, Search, Trash2, FileUp, X, MapPin, Users, Award, Target, ShieldCheck, BarChart3, ChevronRight } from 'lucide-react';
+import { Fingerprint, Lock, CheckCircle2, Database, ShieldAlert, Download, Search, Trash2, FileUp, X, MapPin, Users, Award, Target, ShieldCheck, BarChart3, ChevronRight, Zap } from 'lucide-react';
 import { UserRegistration, QuoteItem, QuoteRecord } from './types';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -513,7 +512,7 @@ const DatabaseStudio: React.FC<{
 const AboutPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white dark:bg-slate-900 py-24 px-4 transition-colors">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
           <div className="inline-block p-4 bg-orange-100 dark:bg-orange-900/30 rounded-3xl mb-6">
             <Target className="text-orange-600 dark:text-orange-400" size={48} />
@@ -524,19 +523,28 @@ const AboutPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-24">
-           <div className="p-10 bg-neutral-50 dark:bg-slate-800 rounded-[2.5rem] border dark:border-slate-700">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-24">
+           <div className="p-10 bg-neutral-50 dark:bg-slate-800 rounded-[2.5rem] border dark:border-slate-700 hover:border-[#40e0d0]/50 transition-colors">
              <ShieldCheck className="text-[#40e0d0] mb-6" size={32} />
              <h3 className="text-2xl font-black mb-4 dark:text-white italic uppercase">Director Trusted</h3>
              <p className="text-neutral-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
-               Built specifically for South African Road Running. Our formulas account for local conditions, heat, and high-altitude hydration needs.
+               Built specifically for Running. Our formulas account for local conditions, heat, and high-altitude hydration needs.
              </p>
            </div>
-           <div className="p-10 bg-neutral-50 dark:bg-slate-800 rounded-[2.5rem] border dark:border-slate-700">
+           <div className="p-10 bg-neutral-50 dark:bg-slate-800 rounded-[2.5rem] border dark:border-slate-700 hover:border-orange-500/50 transition-colors">
              <BarChart3 className="text-orange-600 mb-6" size={32} />
              <h3 className="text-2xl font-black mb-4 dark:text-white italic uppercase">Formula First</h3>
              <p className="text-neutral-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
                Stop guessing how much water or how many pins you need. Our algorithmic approach ensures you're never under-prepared on race morning.
+             </p>
+           </div>
+           <div className="p-10 bg-neutral-50 dark:bg-slate-800 rounded-[2.5rem] border dark:border-slate-700 hover:border-purple-500/50 transition-colors">
+             <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-6">
+                <Zap className="text-purple-600 dark:text-purple-400" size={24} />
+             </div>
+             <h3 className="text-2xl font-black mb-4 dark:text-white italic uppercase">SAVE</h3>
+             <p className="text-neutral-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
+               Saving Directors time, money, supplier verification and communication. Centralized hub for high-performance race production.
              </p>
            </div>
         </div>
