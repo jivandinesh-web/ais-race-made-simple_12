@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "scripts": {"build":"tsc,"start":"node build/index.js"
+  "scripts": {"build":"tsc,"start":"nodebuild/index.js"
   }
     "dev": "vite",
     "build": "vite build",
