@@ -1,10 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Race Budgeting Made Simple</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -29,24 +29,15 @@
         }
         
         /* Animated Running Man SVG styles */
-        .running-man-container {
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .running-man {
-            width: 48px;
-            height: 48px;
-            animation: run 0.6s infinite linear;
-        }
         @keyframes run {
             0% { transform: translateX(-4px) rotate(0deg); }
             25% { transform: translateY(-3px) rotate(-5deg); }
             50% { transform: translateX(4px) rotate(0deg); }
             75% { transform: translateY(3px) rotate(5deg); }
             100% { transform: translateX(-4px) rotate(0deg); }
+        }
+        .animate-run {
+            animation: run 0.6s infinite linear;
         }
 
         /* Shake Animation for Pin Error */

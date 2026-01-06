@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { Fingerprint, Lock, CheckCircle2, Database, ShieldAlert, Download, Search, Trash2, FileUp, X, MapPin, Users, Award, Target, ShieldCheck, BarChart3, ChevronRight, Clock } from 'lucide-react';
+import { Fingerprint, Lock, CheckCircle2, Database, ShieldAlert, Download, Search, Trash2, FileUp, X, MapPin, Users, Award, Target, ShieldCheck, BarChart3, ChevronRight, Clock, FileText, Calendar } from 'lucide-react';
 import { UserRegistration, QuoteItem, QuoteRecord } from './types';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -10,6 +11,8 @@ import RegistrationModal from './components/RegistrationModal';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 import Contact from './components/Contact';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 
 interface Toast {
   id: string;
@@ -30,6 +33,7 @@ const App: React.FC = () => {
     return localStorage.getItem('race_theme') === 'dark';
   });
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [lastSaved, setLastSaved] = useState<number>(Date.now());
 
   // Admin Authentication State
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
@@ -48,9 +52,11 @@ const App: React.FC = () => {
     if (user) {
       localStorage.setItem('race_director_user', JSON.stringify(user));
       setDirectors(prev => {
-        if (!prev.find(d => d.email === user.email)) {
+        const alreadyExists = prev.find(d => d.email === user.email);
+        if (!alreadyExists) {
           const updated = [...prev, { ...user, id: Math.random().toString(36).substr(2, 9), timestamp: Date.now() }];
           localStorage.setItem('crm_directors', JSON.stringify(updated));
+          setLastSaved(Date.now());
           return updated;
         }
         return prev;
@@ -60,6 +66,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     localStorage.setItem('race_quote_cart', JSON.stringify(quoteItems));
+    setLastSaved(Date.now());
   }, [quoteItems]);
 
   useEffect(() => {
@@ -127,6 +134,7 @@ const App: React.FC = () => {
     setQuoteHistory(prev => {
       const updated = [newRecord, ...prev];
       localStorage.setItem('crm_quotes', JSON.stringify(updated));
+      setLastSaved(Date.now());
       return updated;
     });
     
@@ -205,12 +213,14 @@ const App: React.FC = () => {
                   <DatabaseStudio 
                     directors={directors} 
                     quotes={quoteHistory} 
+                    lastSaved={lastSaved}
                     onLogout={() => setIsAdminAuthenticated(false)} 
                     onUpdateData={(newDirectors, newQuotes) => {
                       setDirectors(newDirectors);
                       setQuoteHistory(newQuotes);
                       localStorage.setItem('crm_directors', JSON.stringify(newDirectors));
                       localStorage.setItem('crm_quotes', JSON.stringify(newQuotes));
+                      setLastSaved(Date.now());
                     }}
                   />
                 ) : (
@@ -290,9 +300,10 @@ const AdminGatekeeper: React.FC<{onAuthenticated: () => void}> = ({onAuthenticat
 const DatabaseStudio: React.FC<{
   directors: UserRegistration[], 
   quotes: QuoteRecord[], 
+  lastSaved: number,
   onLogout: () => void,
   onUpdateData: (directors: UserRegistration[], quotes: QuoteRecord[]) => void
-}> = ({directors, quotes, onLogout, onUpdateData}) => {
+}> = ({directors, quotes, lastSaved, onLogout, onUpdateData}) => {
   const [activeTab, setActiveTab] = useState<'directors' | 'quotes' | 'assets'>('quotes');
   const [selectedQuote, setSelectedQuote] = useState<QuoteRecord | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -307,6 +318,86 @@ const DatabaseStudio: React.FC<{
   useEffect(() => {
     localStorage.setItem('admin_artwork_assets', JSON.stringify(adminAssets));
   }, [adminAssets]);
+
+  const formatDate = (ts: number) => {
+    return new Date(ts).toLocaleString('en-ZA', { 
+      day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+  };
+
+  const handleGenerateMasterReport = () => {
+    const doc = new jsPDF() as any;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const generationDate = new Date().toLocaleString();
+
+    // Title Page
+    doc.setFillColor(23, 23, 23);
+    doc.rect(0, 0, pageWidth, 50, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(26);
+    doc.setFont('helvetica', 'bold');
+    doc.text('RUNSPEND MASTER DATABASE', 15, 25);
+    doc.setFontSize(10);
+    doc.text(`REPORT GENERATED: ${generationDate}`, 15, 35);
+    doc.text(`TOTAL DIRECTORS: ${directors.length} | TOTAL QUOTES: ${quotes.length}`, 15, 42);
+
+    // Section 1: Directors CRM
+    doc.setTextColor(23, 23, 23);
+    doc.setFontSize(16);
+    doc.text('REGISTERED RACE DIRECTORS', 15, 65);
+
+    const directorRows = directors.map(d => [
+      d.fullName.toUpperCase(),
+      d.clubName,
+      d.email,
+      d.cellNumber,
+      d.timestamp ? formatDate(d.timestamp) : 'N/A'
+    ]);
+
+    doc.autoTable({
+      startY: 75,
+      head: [['FULL NAME', 'CLUB / ORG', 'EMAIL', 'CELL NUMBER', 'JOINED']],
+      body: directorRows,
+      theme: 'striped',
+      headStyles: { fillColor: [249, 115, 22] },
+      styles: { fontSize: 8 }
+    });
+
+    // Section 2: Quote History
+    const quoteStartY = (doc as any).lastAutoTable.finalY + 20;
+    if (quoteStartY > 220) doc.addPage();
+    
+    doc.setFontSize(16);
+    doc.text('QUOTE HISTORY LOG', 15, quoteStartY < 220 ? quoteStartY : 20);
+
+    const quoteRows = quotes.map(q => [
+      q.id,
+      formatDate(q.timestamp),
+      q.userName.toUpperCase(),
+      q.eventName,
+      q.items.length.toString()
+    ]);
+
+    doc.autoTable({
+      startY: quoteStartY < 220 ? quoteStartY + 10 : 30,
+      head: [['REF ID', 'LOGGED DATE', 'DIRECTOR', 'EVENT', 'ITEMS']],
+      body: quoteRows,
+      theme: 'striped',
+      headStyles: { fillColor: [64, 224, 208] },
+      styles: { fontSize: 8 }
+    });
+
+    // Footer on all pages
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text(`Proprietary Data - RUNSPEND CRM - Page ${i} of ${pageCount}`, pageWidth / 2, 285, { align: 'center' });
+    }
+
+    doc.save(`RUNSPEND_MASTER_REPORT_${Date.now()}.pdf`);
+  };
 
   const handleExportDatabase = () => {
     const payload = {
@@ -349,12 +440,6 @@ const DatabaseStudio: React.FC<{
   const filteredQuotes = quotes.filter(q => q.userName.toLowerCase().includes(searchQuery.toLowerCase()) || q.eventName.toLowerCase().includes(searchQuery.toLowerCase()));
   const filteredDirectors = directors.filter(d => d.fullName.toLowerCase().includes(searchQuery.toLowerCase()) || d.clubName.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  const formatDate = (ts: number) => {
-    return new Date(ts).toLocaleString('en-ZA', { 
-      day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
-    });
-  };
-
   const handleDeleteQuote = (id: string) => {
     if (confirm("Permanently delete this quote record?")) {
       const updated = quotes.filter(q => q.id !== id);
@@ -365,17 +450,25 @@ const DatabaseStudio: React.FC<{
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-12 px-4">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-12 gap-6">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-6">
           <div className="flex items-center space-x-4">
             <div className="p-3 bg-neutral-900 rounded-2xl"><Database className="text-[#40e0d0]" size={32} /></div>
             <div>
               <h1 className="text-4xl font-black dark:text-white italic tracking-tight uppercase">Admin Hub</h1>
-              <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest mt-1">Central Logistics & Quote CRM</p>
+              <div className="flex items-center space-x-2 text-[10px] font-black text-neutral-400 uppercase tracking-widest mt-1">
+                <span>Central Logistics & Quote CRM</span>
+                <span className="text-[#40e0d0]">•</span>
+                <div className="flex items-center text-green-500">
+                  <CheckCircle2 size={12} className="mr-1" />
+                  <span>Sync Saved: {formatDate(lastSaved)}</span>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="flex gap-3">
-            <button onClick={handleExportDatabase} className="flex items-center space-x-2 px-6 py-3 bg-neutral-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition shadow-lg"><Download size={16} /><span>Export DB</span></button>
-            <button onClick={() => importInputRef.current?.click()} className="flex items-center space-x-2 px-6 py-3 bg-[#40e0d0] text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:brightness-110 transition shadow-lg"><FileUp size={16} /><span>Import DB</span></button>
+          <div className="flex flex-wrap gap-3">
+            <button onClick={handleGenerateMasterReport} className="flex items-center space-x-2 px-6 py-3 bg-orange-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-700 transition shadow-lg"><FileText size={16} /><span>Open Master PDF</span></button>
+            <button onClick={handleExportDatabase} className="flex items-center space-x-2 px-6 py-3 bg-neutral-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition shadow-lg"><Download size={16} /><span>Export JSON</span></button>
+            <button onClick={() => importInputRef.current?.click()} className="flex items-center space-x-2 px-6 py-3 bg-[#40e0d0] text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:brightness-110 transition shadow-lg"><FileUp size={16} /><span>Import JSON</span></button>
             <input type="file" ref={importInputRef} className="hidden" accept=".json" onChange={handleImportDatabase} />
             <button onClick={onLogout} className="p-3 bg-slate-200 dark:bg-slate-800 text-slate-500 rounded-2xl hover:text-red-500 transition-colors"><Lock size={20} /></button>
           </div>
@@ -401,7 +494,7 @@ const DatabaseStudio: React.FC<{
               <thead className="bg-neutral-50 dark:bg-slate-800/50 border-b dark:border-slate-700">
                 <tr className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">
                   <th className="px-6 py-5">Ref ID</th>
-                  <th className="px-6 py-5">Date</th>
+                  <th className="px-6 py-5">Logged At</th>
                   <th className="px-6 py-5">Director</th>
                   <th className="px-6 py-5">Items</th>
                   <th className="px-6 py-5 text-right">Action</th>
@@ -411,7 +504,12 @@ const DatabaseStudio: React.FC<{
                 {filteredQuotes.map(q => (
                   <tr key={q.id} className="hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors">
                     <td className="px-6 py-5 font-mono text-xs font-black text-neutral-900 dark:text-white">{q.id}</td>
-                    <td className="px-6 py-5 text-[11px] font-black text-neutral-600 dark:text-slate-400">{formatDate(q.timestamp)}</td>
+                    <td className="px-6 py-5">
+                       <div className="flex flex-col">
+                         <span className="text-[11px] font-black text-neutral-600 dark:text-slate-400">{formatDate(q.timestamp)}</span>
+                         <span className="text-[8px] text-neutral-400 uppercase font-bold">Server Synchronized</span>
+                       </div>
+                    </td>
                     <td className="px-6 py-5">
                       <div className="flex flex-col">
                         <span className="font-black text-xs uppercase dark:text-white">{q.userName}</span>
@@ -433,7 +531,11 @@ const DatabaseStudio: React.FC<{
         {activeTab === 'directors' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredDirectors.map(d => (
-              <div key={d.email} className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border dark:border-slate-800 shadow-xl group hover:border-[#40e0d0] transition-colors">
+              <div key={d.email} className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border dark:border-slate-800 shadow-xl group hover:border-[#40e0d0] transition-colors relative">
+                <div className="absolute top-6 right-6 flex items-center space-x-1 text-[8px] font-black text-neutral-300 uppercase">
+                  <Clock size={10} />
+                  <span>Joined: {d.timestamp ? formatDate(d.timestamp) : 'N/A'}</span>
+                </div>
                 <div className="flex items-center space-x-4 mb-6">
                   <div className="w-14 h-14 bg-neutral-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center font-black text-xl group-hover:bg-[#40e0d0] group-hover:text-white transition-colors">{d.fullName.charAt(0)}</div>
                   <div>

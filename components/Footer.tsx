@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Instagram, Facebook, Twitter, Mail, Database, Smartphone } from 'lucide-react';
+import { Instagram, Facebook, Mail, Database, Smartphone } from 'lucide-react';
+import { RunningMan } from './Header';
 
 const Footer: React.FC = () => {
   return (
@@ -8,15 +9,13 @@ const Footer: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           <div className="col-span-1 md:col-span-1">
-            <Link to="/" className="flex items-center space-x-2 mb-6">
-              <div className="w-8 h-8 bg-orange-600 rounded flex items-center justify-center">
-                <span className="font-bold">R</span>
-              </div>
-              <span className="text-xl font-bold tracking-tight">RUN SPEND</span>
+            <Link to="/" className="flex items-center space-x-3 mb-6 group">
+              <RunningMan className="fill-orange-500 transition-transform group-hover:scale-110" size="40px" />
+              <span className="text-2xl font-black italic tracking-tighter uppercase text-white">RUNSPEND</span>
             </Link>
-            <p className="text-neutral-400 text-sm leading-relaxed">
+            <p className="text-neutral-400 text-sm leading-relaxed font-medium italic">
               Professional tools for marathon and road running race organizers. 
-              Precision budgeting, simplified.
+              Precision budgeting, simplified for high-performance production.
             </p>
           </div>
 
@@ -47,9 +46,6 @@ const Footer: React.FC = () => {
               <a href="#" className="w-10 h-10 bg-neutral-800 rounded-full flex items-center justify-center hover:bg-orange-600 transition">
                 <Facebook size={18} />
               </a>
-              <a href="#" className="w-10 h-10 bg-neutral-800 rounded-full flex items-center justify-center hover:bg-orange-600 transition">
-                <Twitter size={18} />
-              </a>
             </div>
             <div className="space-y-3">
               <div className="flex items-center space-x-2 text-neutral-400 text-sm">
@@ -64,14 +60,17 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        <div className="border-t border-neutral-800 pt-8 flex flex-col md:row items-center justify-between gap-4">
-          <p className="text-neutral-500 text-xs text-center font-medium">
-            © {new Date().getFullYear()} Race Budgeting Made Simple. All rights reserved. 
-            Built for the running community.
-          </p>
-          <div className="flex items-center space-x-4">
-             <img src="https://img.icons8.com/color/48/visa.png" alt="Visa" className="h-6 grayscale opacity-50" />
-             <img src="https://img.icons8.com/color/48/mastercard.png" alt="Mastercard" className="h-6 grayscale opacity-50" />
+        <div className="border-t border-neutral-800 pt-8 flex flex-col items-center justify-center">
+          <div className="flex flex-col space-y-3 w-full items-center text-center">
+            <p className="text-orange-500 text-[10px] md:text-xs font-black uppercase tracking-widest">
+              REQUEST FOR QUOTES SHOULD BE AT LEAST 2 MONTHS IN ADVANCE DUE TO TIMELINES OF MANUFACTURE
+            </p>
+            <p className="text-neutral-500 text-[10px] md:text-xs font-medium">
+              © {new Date().getFullYear()} Race Budgeting Made Simple. All rights reserved.
+            </p>
+            <p className="text-orange-500 text-[10px] md:text-xs font-black uppercase tracking-widest">
+              PROPRIETOR OF SITE, CALCULATORS & FORMULAS: DINESH JIVAN
+            </p>
           </div>
         </div>
       </div>

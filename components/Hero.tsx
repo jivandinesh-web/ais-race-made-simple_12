@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Target, ShieldCheck, BarChart3, Clock } from 'lucide-react';
-import { RunningManAnimation } from './Header';
+import { RunningMan } from './Header';
 
 interface HeroProps {
   onStart: () => void;
@@ -15,14 +15,20 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
         {/* Logo Container: Circular with Peach Gradient */}
         <div className="mb-10 p-1 bg-gradient-to-br from-[#FFDAB9] to-[#FFCC99] rounded-full shadow-2xl transition-all hover:scale-105 duration-500">
           <div className="w-32 h-32 bg-white/20 dark:bg-black/10 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30">
-            <RunningManAnimation className="fill-orange-600 dark:fill-orange-400" size="80px" />
+            <RunningMan className="fill-orange-600 dark:fill-orange-400" size="80px" />
           </div>
         </div>
 
         <main className="max-w-4xl">
-          <h1 className="text-5xl tracking-tight font-black text-gray-900 dark:text-white sm:text-6xl md:text-8xl mb-6">
-            <span className="block mb-2">Race Budgeting</span>
-            <span className="block text-orange-600 dark:text-orange-500 italic uppercase font-black">RUNSPEND</span>
+          <h1 className="tracking-tight font-black text-gray-900 dark:text-white mb-6">
+            <span className="block text-5xl sm:text-6xl md:text-8xl mb-2 text-black dark:text-white">Race Budgeting</span>
+            <span 
+              className="block mb-6 text-black dark:text-white font-extrabold italic tracking-tight opacity-90"
+              style={{ fontSize: '1.5cm', lineHeight: '1.5cm', height: '1.5cm' }}
+            >
+              Simplified
+            </span>
+            <span className="block text-5xl sm:text-6xl md:text-8xl text-orange-600 dark:text-orange-500 italic uppercase font-black">RUNSPEND</span>
           </h1>
           <p className="mt-6 text-lg text-gray-500 dark:text-slate-400 sm:text-xl md:text-2xl max-w-2xl mx-auto font-medium leading-relaxed">
             The ultimate planning suite for Race Directors. Calculate event costs, source quality supplies, and manage logistics for thousands of runners with precision.
